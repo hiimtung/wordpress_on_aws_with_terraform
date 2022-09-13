@@ -1,0 +1,82 @@
+#!/bin/bash
+set -u
+set -e
+EFS_HOST="${EFS_HOST}"
+
+DB_NAME="${DB_NAME}"
+DB_HOSTNAME="${DB_HOSTNAME}"
+DB_USERNAME="${DB_USERNAME}"
+DB_PASSWORD="${DB_PASSWORD}"
+
+WP_ADMIN="${WP_ADMIN}"
+WP_PASSWORD="${WP_PASSWORD}"
+WP_ADMIN_EMAIL="${WP_ADMIN_EMAIL}"
+
+LB_HOSTNAME="${LB_HOSTNAME}"
+
+# Update and install php, php-modules, apache, mysql
+sudo yum update -y
+sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+sudo yum install -y httpd mariadb-server
+sudo yum install -y php-{pear,cgi,common,curl,mbstring,gd,mysqlnd,gettext,bcmath,json,xml,fpm,intl,zip,imap,devel}
+sudo yum install -y gcc ImageMagick ImageMagick-devel ImageMagick-perl
+sudo yum install -y  php-imagick
+# Memcached install
+sudo wget https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.2/latest-64bit
+tar -zxvf latest-64bit
+sudo mv amazon-elasticache-cluster-client.so /usr/lib64/php/modules/
+sudo echo "extension=amazon-elasticache-cluster-client.so" | sudo tee --append /etc/php.d/50-memcached.ini
+
+# Install wp cli
+sudo curl -o /bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+sudo chmod +x /bin/wp
+
+# Add apache, mysql to startup
+sudo systemctl enable httpd
+sudo systemctl enable mariadb
+
+# Restart apache, mysql, php-fpm
+sudo systemctl restart httpd
+sudo systemctl restart mariadb
+sudo systemctl restart php-fpm.service
+
+# EFS mount
+sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${EFS_HOST}:/  /var/www/html
+
+# Change mod and own /var/www/
+# Add your user (in this case, ec2-user) to the apache group.
+sudo usermod -a -G apache ec2-user
+# Change the group ownership of /var/www and its contents to the apache group.
+sudo chown -R ec2-user:apache /var/www
+# To add group write permissions and to set the group ID on future subdirectories, change the directory permissions of /var/www and its subdirectories.
+sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+# To add group write permissions, recursively change the file permissions of /var/www and its subdirectories.
+find /var/www -type f -exec sudo chmod 0664 {} \;
+
+# Download and install wordpress
+if [[ ! -d /var/www/html/wp-admin ]] || [[ ! -d /var/www/html/wp-content ]]
+then
+    sudo wget https://wordpress.org/latest.tar.gz
+    tar -xzf latest.tar.gz
+    sudo cp -r wordpress/* /var/www/html/
+
+    # Change permission of /var/www/html/ and subdirectories
+    sudo chown -R ec2-user:apache /var/www/html
+    sudo chmod -R 774 /var/www/html
+
+    # Generate wp-config.php
+    while [ ! -f /var/www/html/wp-config.php ]
+    do
+        cd /var/www/html 
+        sudo wp core config --dbname="${DB_NAME}" --dbuser="${DB_USERNAME}" --dbpass="${DB_PASSWORD}" --dbhost="${DB_HOSTNAME}" --dbprefix=wp_ --allow-root
+        # Add File sytem mode direct to wp-config.php
+        sudo wp config set 'FS_METHOD' 'direct' --allow-root
+        sudo wp config set 'WP_CACHE' 'true' --allow-root
+        sleep 2
+    done
+    # Generating WP setting
+    sudo wp core install --url="http://${LB_HOSTNAME}" --title='Wordpress Project AWS' --admin_user="${WP_ADMIN}" --admin_password="${WP_PASSWORD}" --admin_email="${WP_ADMIN_EMAIL}" --allow-root
+
+    # Install w3 total cache
+    sudo wp plugin install w3-total-cache --allow-root
+fi
