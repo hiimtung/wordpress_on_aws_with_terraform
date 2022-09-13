@@ -1,0 +1,38 @@
+name: Release
+on: push
+
+jobs:
+  checkov-job:
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@v12.1347.0
+        with:
+          directory: ./main
+          # file: example/tfplan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
+          # check: CKV_AWS_1 # optional: run only a specific check_id. can be comma separated list
+          # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+          quiet: true # optional: display only failed checks
+          soft_fail: true # optional: do not return an error code if there are failed checks
+          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          output_format: github_failed_only # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
+          log_level: WARNING # optional: set log level. Default WARNING
+          # external_checks_dirs: ../Modules/S3, ../Modules/Database, ../Modules
+          # config_file: path/this_file
+          # baseline: ./checkov-report/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
+          container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issue
+
+      - name: Render terraform docs and push changes back to PR
+        uses: terraform-docs/gh-actions@main
+        with:
+          working-dir: ./main
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+
