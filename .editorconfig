@@ -1,0 +1,25 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[{*.tf,*.tfvars}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+ij_hcl-terraform_array_wrapping = 2
+ij_hcl-terraform_keep_blank_lines_in_code = 2
+ij_hcl-terraform_keep_indents_on_empty_lines = false
+ij_hcl-terraform_keep_line_breaks = true
+ij_hcl-terraform_object_wrapping = 2
+ij_hcl-terraform_property_alignment = 2
+ij_hcl-terraform_property_line_commenter_character = 0
+ij_hcl-terraform_space_after_comma = true
+ij_hcl-terraform_space_before_comma = false
+ij_hcl-terraform_spaces_around_assignment_operators = true
+ij_hcl-terraform_spaces_within_braces = false
+ij_hcl-terraform_spaces_within_brackets = false
+ij_hcl-terraform_wrap_long_lines = false
