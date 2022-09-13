@@ -1,6 +1,6 @@
-# wordpress-terraform-project
-## TODO
-- [] checkov
+# wordpress-on-aws-with-terraform
+##### TODO
+- [ ] checkov
 ##### Description
 
 This project is to create a high avaibility wordpress web-server on AWS base on Terraform - an IaaC platform.<br>
@@ -19,7 +19,7 @@ Please follow this [link](https://github.com/tnx-journey-to-cloud/wordpress-terr
 
 - Install all prerequisites above
 - Deploy<br>
-    <code>cd ~/wordpress-terraform-project</code><br>
+    <code>cd ~/wordpress-on-aws-with-terraform/main</code><br>
     <code>terraform init</code><br>
     <code>terraform plan</code><br>
     <code>terraform apply</code><br>
