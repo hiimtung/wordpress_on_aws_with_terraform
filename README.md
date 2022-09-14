@@ -1,9 +1,10 @@
 # wordpress-on-aws-with-terraform
 ##### TODO
 - [ ] checkov
+- [ ] ludicrousdb
 ##### Description
 
-This project is to create a high avaibility wordpress web-server on AWS base on Terraform - an IaaC platform.<br>
+This project is to create a high avaibility wordpress web-server on AWS base on Terraform - an IaC platform.<br>
 
 ##### Prerequisites
 
@@ -62,7 +63,6 @@ Please follow this [link](https://github.com/tnx-journey-to-cloud/wordpress-terr
 │   │   └───📄 variables.tf
 │   └───📁 s3/
 │       ├───📄 main.tf
-│       ├───📄 mime.json
 │       ├───📄 outputs.tf
 │       └───📄 variables.tf
 ├───📁 main/
