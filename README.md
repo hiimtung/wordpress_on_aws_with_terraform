@@ -4,7 +4,7 @@
 - [ ] ludicrousdb
 ##### Description
 
-This project is to create a high avaibility wordpress web-server on AWS base on Terraform - an IaC platform.<br>
+This project is to create a high availability wordpress web-server on AWS base on Terraform - an IaC platform.<br>
 
 ##### Prerequisites
 
@@ -14,7 +14,7 @@ This project is to create a high avaibility wordpress web-server on AWS base on 
 
 ##### How to contribute
 
-Please follow this [link](https://github.com/tnx-journey-to-cloud/wordpress-terraform-project/blob/main/howtocontribute.md)
+Please follow this [link](https://github.com/hiimtung/wordpress_on_aws_with_terraform/blob/main/howtocontribute.md)
 
 ##### How to install & run
 
